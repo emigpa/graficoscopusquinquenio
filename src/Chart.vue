@@ -37,44 +37,24 @@
 <script>
 import Chart from 'chart.js/dist/Chart.min.js'
 import Zoom from 'chartjs-plugin-zoom'
+import Datalabels from 'chartjs-plugin-datalabels'
 import axios from 'axios'
 export default {
   data () {
     return {
       adc: ['cne', 'iyt', 'ftn', 'bgm', 'sch'],
-      // pointHitRadius: 5,
-      // pointRadius: 0,
-      // backgroundColor: 'rgb(255, 34, 51)'
-      // options: {
-      //   scales:
-      //     {
-      //       yAxes:
-      //       [{ ticks: {
-      //         min: 0,
-      //         stepSize: 10 }
-      //       }]
-      //       // xAxes:
-      //       // [{ ticks: {
-      //       //   // min: 2013,
-      //       //   // max: 2017,
-      //       //   stepSize: 1}
-      //       // }]
-      //     }
-      // },
-      chartData: [],
-      // chartData: [['2017-01-01 00:00:00 UTC', 1], ['2018-05-01 00:00:00 UTC', 5]],
-      pieData: [['Blueberry', 44], ['Strawberry', 23], ['Strawberry', 23], ['Strawberry', 23], ['Strawberry', 23]]
+      chartData: []
     }
   },
   methods: {
     getData () {
       axios.get('http://localhost:8080/api/scopus')
         .then(x => {
-          const CNEdata = x.data.filter(x => x.adc === 'CNE').map(x => ({...x, y: parseInt(x.y) >= 100 ? `${parseInt(x.y) - 180}` : x.y})).map(y => ({x: y.coordX, y: y.y, r: y.citas}))
-          const IYTdata = x.data.filter(x => x.adc === 'IYT').map(y => ({x: y.coordX, y: y.y, r: y.citas}))
-          const FTNdata = x.data.filter(x => x.adc === 'FTN').map(y => ({x: y.coordX, y: y.y, r: y.citas}))
-          const BGMdata = x.data.filter(x => x.adc === 'BGM').map(y => ({x: y.coordX, y: y.y, r: y.citas}))
-          const CSHdata = x.data.filter(x => x.adc === 'CSH').map(y => ({x: y.coordX, y: y.y, r: y.citas}))
+          const CNEdata = x.data.filter(x => x.adc === 'CNE').map(x => ({...x, y: parseInt(x.y) >= 100 ? `${parseInt(x.y) - 180}` : x.y})).map(y => ({...y, x: y.coordX, y: y.y, r: y.citas}))
+          const IYTdata = x.data.filter(x => x.adc === 'IYT').map(y => ({...y, x: y.coordX, y: y.y, r: y.citas}))
+          const FTNdata = x.data.filter(x => x.adc === 'FTN').map(y => ({...y, x: y.coordX, y: y.y, r: y.citas}))
+          const BGMdata = x.data.filter(x => x.adc === 'BGM').map(y => ({...y, x: y.coordX, y: y.y, r: y.citas}))
+          const CSHdata = x.data.filter(x => x.adc === 'CSH').map(y => ({...y, x: y.coordX, y: y.y, r: y.citas}))
           this.chartData.cne = CNEdata
           this.chartData.iyt = IYTdata
           this.chartData.ftn = FTNdata
@@ -87,7 +67,8 @@ export default {
     drawPolarChart () {
       const ctx = document.getElementById('polarchart')
       const polar = new Chart(ctx, {
-        type: 'pie',
+        plugins: [Datalabels],
+        type: 'doughnut',
         options: {
           responsive: true,
           legend: {
@@ -100,8 +81,20 @@ export default {
               top: 0,
               bottom: 0
             }
+          },
+          tooltips: {
+            callbacks: {
+              label: (tooltipItem, data) => {
+                const dataset = data.datasets[tooltipItem.datasetIndex]
+                const meta = dataset._meta[Object.keys(dataset._meta)[0]]
+                const total = meta.total
+                const currentValue = dataset.data[tooltipItem.index]
+                const percentage = parseFloat((currentValue / total * 100).toFixed(1))
+                return currentValue + ' (' + percentage + '%)'
+              },
+              title: (tooltipItem, data) => data.labels[tooltipItem[0].index]
+            }
           }
-
         },
         data: {
           datasets: [{
@@ -114,7 +107,13 @@ export default {
               this.chartData.csh.length
             ]
           }],
-          labels: ['CNE', 'IYT', 'FTN', 'BGM', 'CSH']
+          labels: ['CNE', 'IYT', 'FTN', 'BGM', 'CSH'],
+          datalabels: {
+            display: true,
+            formatter: (value, context) => {
+              console.log(value)
+            }
+          }
         }
       })
     },
@@ -163,9 +162,43 @@ export default {
               }
             }]
           },
+          tooltips: {
+            callbacks: {
+              label: (tooltipItem, data) => {
+                const dataset = data.datasets[tooltipItem.datasetIndex]
+                // const meta = dataset._meta[Object.keys(dataset._meta)[0]]
+                // const total = meta.total
+                const currentValue = dataset.data[tooltipItem.index]
+                // const percentage = parseFloat((currentValue / total * 100).toFixed(1))
+                // console.log(currentValue)
+                return `CANTIDAD DE CITAS: ${currentValue.citas}`
+              },
+              title: (tooltipItem, data) => {
+                const dataset = data.datasets[tooltipItem[0].datasetIndex]
+                const currentValue = dataset.data[tooltipItem[0].index]
+                return `${currentValue.titulo}`
+                // const dataset = data.datasets[tooltipItem.datasetIndex]
+                // const currentValue = dataset.data[tooltipItem.index]
+                // return currentValue.citas
+              },
+              footer: (tooltipItem, data) => {
+                const dataset = data.datasets[tooltipItem[0].datasetIndex]
+                const currentValue = dataset.data[tooltipItem[0].index]
+                return `${currentValue.fecha}` // currentValue.titulo // + ' (' + percentage + '%)'
+              }
+            }
+          },
           pan: {
-            enabled: false,
-            mode: 'x'
+            enabled: true,
+            mode: 'xy',
+            rangeMin: {
+              x: 0,
+              y: 0
+            },
+            rangeMax: {
+              x: 5000,
+              y: 120
+            }
           },
           zoom: {
             enabled: true,
