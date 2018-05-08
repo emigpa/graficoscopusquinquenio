@@ -1,41 +1,78 @@
 <template>
-  <v-container fluid wrap align-center justify-center>
-    <v-card raised>
-      <v-card-title class="title">Publicaciones en revistas en Scopus. UNSAM período 2013-2017</v-card-title>
-      <v-card-text class="subheading">El tamaño de las bolas es proporcional a la cantidad de citaciones.</v-card-text>
-      <v-layout wrap row>
-        <v-flex md10>
-          <v-card-media contain>
-            <canvas id="scatterchart"></canvas>
-          </v-card-media>
-        </v-flex>
-        <v-flex md2>
-          <v-container fluid>
-            <v-card-media contain>
-              <canvas id="piechart"></canvas>
-            </v-card-media>
-            <v-layout row wrap>
-              <v-flex xs12 sm12 md12>
-                Ciencias naturales y exactas
-                <v-switch hide-details color="red" v-model="adc" value="cne"></v-switch>
-                Ingenierías y tecnologías
-                <v-switch hide-details color="blue" v-model="adc" value="iyt"></v-switch>
-                Farmacología, toxicología y neurociencias
-                <v-switch hide-details color="yellow" v-model="adc" value="ftn"></v-switch>
-                Bioquímica, genética y biología molecular
-                <v-switch hide-details color="grey" v-model="adc" value="bgm"></v-switch>
-                Ciencias sociales y humanidades
-                <v-switch hide-details color="blue" v-model="adc" value="csh"></v-switch>
-              </v-flex>
-            </v-layout>
-          </v-container>
-        </v-flex>
-      </v-layout>
-      <v-footer height="48" class="pa-3">
-    <v-spacer></v-spacer>
-    <span>Elsevier nos presta la data. &copy;</span>
-    <img src="public/data-favicon.png"></img>
-  </v-footer>
+  <v-container fluid grid-list-md>
+    <v-card>
+      <v-card-title class="title">Publicaciones en revistas en Scopus. UNSAM período 2013-2017
+      </v-card-title>
+      <!-- <v-card-text class="subheading">El tamaño de las bolas es proporcional a la cantidad de citaciones.
+      </v-card-text> -->
+      <v-card-media contain>
+        <v-layout wrap row>
+          <v-flex xl10 lg9 md9 s12 xs12>
+            <v-card flat>
+              <v-card-media contain>
+                <canvas id="scatterchart"></canvas>
+              </v-card-media>
+            </v-card>
+          </v-flex>
+          <v-flex xl2 lg3 md3 s12 xs12>
+            <v-card flat>
+                <v-list class="mb-5" dense>
+                  <v-divider></v-divider>
+                  <v-list-tile>
+                    <v-list-tile-avatar>
+                    <v-switch hide-details class="shrink mr-3" color="red darken-4" v-model="adc" value="cne"></v-switch>
+                    </v-list-tile-avatar>
+                    <v-list-tile-content>
+                      <v-list-tile-title>
+                        Ciencias naturales y exactas
+                      </v-list-tile-title>
+                  </v-list-tile-content>
+                  </v-list-tile>
+                  <v-divider></v-divider>
+                  <v-list-tile>
+                    <v-list-tile-avatar>
+                    <v-switch hide-details class="shrink mr-3" color="teal lighten-2" v-model="adc" value="iyt"></v-switch>
+                  </v-list-tile-avatar>
+                    <v-list-tile-content>
+                    Ingenierías y tecnologías
+                  </v-list-tile-content>
+                  </v-list-tile>
+                  <v-divider></v-divider>
+                  <v-list-tile>
+                    <v-list-tile-avatar>
+                  <v-switch hide-details class="shrink mr-3" color="blue-grey darken-1" v-model="adc" value="cbi"></v-switch>
+                </v-list-tile-avatar>
+                  <v-list-tile-content>
+                  Ciencias Biológicas
+                  </v-list-tile-content>
+                  </v-list-tile>
+                  <v-divider></v-divider>
+                  <v-list-tile>
+                    <v-list-tile-avatar>
+                  <v-switch hide-details class="shrink mr-3" color="green darken-1" v-model="adc" value="csh"></v-switch>
+                </v-list-tile-avatar>
+                  <v-list-tile-content>
+                  Ciencias sociales y humanidades
+                  </v-list-tile-content>
+                  </v-list-tile>
+                  <v-divider></v-divider>
+            </v-list>
+              <v-card-media contain>
+                <canvas id="piechart"></canvas>
+              </v-card-media>
+            </v-card>
+          </v-flex>
+        </v-layout>
+      </v-card-media>
+      <v-footer height="48" class="pa-3" color="white">
+        <v-spacer></v-spacer>
+        <span style="margin-right:5px;">Datos provistos por la API de</span>
+        <a href="http://api.elsevier.com" target="_blank">
+        <img alt="scopus" height="16" src="https://www.elsevier.com/__data/assets/image/0003/118146/scopus_logo_r.jpg"></img>
+        </a>
+        <span style="margin-left:5px;margin-right:5px;">el 1/05/2018</span>
+        <img alt="UNSAMDATA" src="public/data-favicon.png"></img>
+      </v-footer>
     </v-card>
     <v-dialog v-model="dialog" max-width="600px">
       <v-card>
@@ -87,18 +124,12 @@ import axios from 'axios'
 export default {
   data () {
     return {
-      adc: ['cne', 'iyt', 'ftn', 'bgm', 'csh'],
+      adc: ['cne', 'iyt', 'cbi', 'csh'],
       color: {
-        cne: 'rgba(239, 7, 3, 0.6)',
-        iyt: 'rgba(186, 3, 249, 0.6)',
-        ftn: 'rgba(0, 20, 226, 0.6)',
-        bgm: 'rgba(0, 222, 249, 0.6)',
-        csh: 'rgba(0, 239, 59, 0.6)'
-        // cne: 'rgba(255, 34, 51, 0.6)',
-        // iyt: 'rgba(45, 255, 34, 0.6)',
-        // ftn: 'rgba(209, 162, 21, 0.6)',
-        // bgm: 'rgba(0, 0, 0, 0.6)',
-        // csh: 'rgba(34, 50, 255, 0.6)'
+        cne: 'rgba(168, 32, 26, 0.8)',
+        iyt: 'rgba(15, 140, 142, 0.7)',
+        cbi: 'rgba(20, 54, 66, 0.7)',
+        csh: 'rgba(22, 147, 15, 0.7)'
       },
       chartData: [],
       dialog: false,
@@ -107,17 +138,15 @@ export default {
   },
   methods: {
     getData () {
-      axios.get('http://sinos.unsam.edu.ar/api/scopus')
+      axios.get('http://localhost:8080/api/scopus')
         .then(x => {
-          const CNEdata = x.data.filter(x => x.adc === 'CNE').map(x => ({...x, y: x.y >= 100 ? x.y - 180 : x.y + 1})).map(y => ({...y, x: y.coordX, y: y.y, r: y.citas}))
+          const CNEdata = x.data.filter(x => x.adc === 'CNE').map(y => ({...y, x: y.coordX, y: y.y + 1, r: y.citas})).map(x => ({...x, y: x.y >= 150 ? 160 : x.y}))
           const IYTdata = x.data.filter(x => x.adc === 'IYT').map(y => ({...y, x: y.coordX, y: y.y + 1, r: y.citas}))
-          const FTNdata = x.data.filter(x => x.adc === 'FTN').map(y => ({...y, x: y.coordX, y: y.y + 1, r: y.citas}))
-          const BGMdata = x.data.filter(x => x.adc === 'BGM').map(y => ({...y, x: y.coordX, y: y.y + 1, r: y.citas}))
+          const CBIdata = x.data.filter(x => x.adc === 'CBI').map(y => ({...y, x: y.coordX, y: y.y + 1, r: y.citas}))
           const CSHdata = x.data.filter(x => x.adc === 'CSH').map(y => ({...y, x: y.coordX, y: y.y + 1, r: y.citas}))
           this.chartData.cne = CNEdata
           this.chartData.iyt = IYTdata
-          this.chartData.ftn = FTNdata
-          this.chartData.bgm = BGMdata
+          this.chartData.cbi = CBIdata
           this.chartData.csh = CSHdata
           this.drawScatterChart()
           this.drawPolarChart()
@@ -126,7 +155,7 @@ export default {
     drawPolarChart () {
       const setPieDatasets = () => [{
         data: Object.entries(this.chartData).map(dataset => this.adc.includes(dataset[0]) ? dataset[1].length : 0),
-        backgroundColor: [this.color.cne, this.color.iyt, this.color.ftn, this.color.bgm, this.color.csh]
+        backgroundColor: [this.color.cne, this.color.iyt, this.color.cbi, this.color.csh]
       }]
       if (this.pieChart) {
         this.pieChart.data.datasets = setPieDatasets()
@@ -146,7 +175,7 @@ export default {
             layout: {
               padding: {
                 left: 0,
-                right: 100,
+                right: 0,
                 top: 0,
                 bottom: 0
               }
@@ -167,7 +196,7 @@ export default {
           },
           data: {
             datasets: setPieDatasets(),
-            labels: ['CNE', 'IYT', 'FTN', 'BGM', 'CSH'],
+            labels: ['Ciencias naturales y exactas', 'Ingenierías y tecnologías', 'Ciencias biológicas', 'Ciencias sociales y humanidades'],
             datalabels: {
               display: true,
               formatter: (value, context) => {
@@ -179,16 +208,29 @@ export default {
       }
     },
     drawScatterChart () {
-      const setScatterDatasets = () => Object.entries(this.chartData).map(dataset => ({
-        data: this.adc.includes(dataset[0]) ? dataset[1] : [],
-        pointRadius: dataset[1].map(x => x.r <= 2 ? 2 : x.r / 3),
-        pointHoverRadius: dataset[1].map(x => x.r <= 2 ? 2 : x.r / 3),
-        // radius: dataset[1].map(x => x.y === '0' || x.y === '1' ? '1' : Math.log(x.y) * Math.log(20)),
-        backgroundColor: this.color[dataset[0]],
-        pointHoverBorderColor: 'black',
-        pointHoverBorderWidth: 3,
-        borderWidth: 3}
-      ))
+      const setScatterDatasets = () => Object.entries(this.chartData).map(dataset => {
+        const dataRadius = dataset[1].map(x => x.r >= 150
+          ? x.r / 6
+          : x.r < 150 && x.r >= 100
+            ? x.r / 5
+            : x.r < 100 && x.r >= 50
+              ? x.r / 4
+              : x.r < 50 && x.r >= 20
+                ? x.r / 3
+                : x.r < 20 && x.r >= 10
+                  ? x.r / 2
+                  : 3)
+        return {
+          data: this.adc.includes(dataset[0]) ? dataset[1] : [],
+          pointRadius: dataRadius,
+          pointHoverRadius: dataRadius,
+          backgroundColor: this.color[dataset[0]],
+          pointHoverBorderColor: 'black',
+          pointHoverBorderWidth: 3,
+          borderWidth: 3
+        }
+      }
+      )
       if (this.scatterChart) {
         this.scatterChart.data.datasets = setScatterDatasets()
         this.scatterChart.update({duration: 0})
@@ -206,9 +248,17 @@ export default {
             },
             scales: {
               yAxes: [{
+                scaleLabel: {
+                  display: true,
+                  labelString: 'Citas por artículo',
+                  fontStyle: 'bold',
+                  fontSize: 16
+                },
                 type: 'linear',
                 gridLines: {
-                  display: false
+                  display: true,
+                  lineWidth: 2,
+                  borderDash: [10]
                 },
                 ticks: {
                   display: false,
@@ -217,14 +267,14 @@ export default {
               }],
               xAxes: [{
                 gridLines: {
-                  color: 'grey',
                   display: false,
                   offsetGridLines: false,
-                  lineWidth: 1
+                  lineWidth: 5,
+                  borderDash: [10]
                 },
                 ticks: {
                   fontStyle: 'bold',
-                  fontSize: 15,
+                  fontSize: 16,
                   stepSize: 1000,
                   min: 0,
                   max: 5000,
@@ -247,7 +297,7 @@ export default {
                   const currentValue = dataset.data[tooltipItem.index]
                   // const percentage = parseFloat((currentValue / total * 100).toFixed(1))
                   // console.log(currentValue)
-                  return `CANTIDAD DE CITAS: ${currentValue.citas}`
+                  return `Cantidad de citas: ${currentValue.citas}`
                 },
                 title: (tooltipItem, data) => {
                   const dataset = data.datasets[tooltipItem[0].datasetIndex]
@@ -286,13 +336,21 @@ export default {
               },
               rangeMax: {
                 x: 5000,
-                y: 120
+                y: 160
               }
             },
             onClick: (e, data) => {
-              const dataset = data[0]._chart.data.datasets[data[0]._datasetIndex]
-              this.dialogData = dataset.data[data[0]._index]
-              this.dialog = true
+              if (data.length !== 0) {
+                const dataset = data[0]._chart.data.datasets[data[0]._datasetIndex]
+                this.dialogData = dataset.data[data[0]._index]
+                this.dialog = true
+              } else {}
+            },
+            onHover: (e, data) => {
+              const chart = document.getElementById('scatterchart')
+              data.length !== 0
+                ? chart.style.cursor = 'pointer'
+                : chart.style.cursor = 'zoom-in'
             }
           },
           data: {
