@@ -12,13 +12,15 @@
               </v-card-media>
             </v-card>
           </v-flex>
-          <v-flex xl2 lg3 md3 s12 xs12>
+          <v-flex class="pr-3" xl2 lg3 md3 s12 xs12>
+            <v-text-field  hint="por titulo, autor, institucion, revista." append-icon="search" id="input1" name="input1" label="Buscar" v-model="search">
+            </v-text-field>
             <v-card class="" flat>
                 <v-list class="mb-5" dense>
                   <v-divider></v-divider>
                   <v-list-tile>
                     <v-list-tile-avatar>
-                    <v-switch hide-details class="shrink mr-3" color="red darken-4" v-model="adc" value="cne"></v-switch>
+                    <v-switch @click="setAdc()" hide-details class="shrink mr-3" color="red darken-4" v-model="adc" value="CNE"></v-switch>
                     </v-list-tile-avatar>
                     <v-list-tile-content>
                       <v-list-tile-title>
@@ -29,7 +31,7 @@
                   <v-divider></v-divider>
                   <v-list-tile>
                     <v-list-tile-avatar>
-                    <v-switch hide-details class="shrink mr-3" color="orange accent-3" v-model="adc" value="iyt"></v-switch>
+                    <v-switch hide-details class="shrink mr-3" color="orange accent-3" v-model="adc" value="IYT"></v-switch>
                   </v-list-tile-avatar>
                     <v-list-tile-content>
                     Ingenierías y tecnologías
@@ -38,7 +40,7 @@
                   <v-divider></v-divider>
                   <v-list-tile>
                     <v-list-tile-avatar>
-                  <v-switch hide-details class="shrink mr-3" color="grey darken-3" v-model="adc" value="cbi"></v-switch>
+                  <v-switch hide-details class="shrink mr-3" color="grey darken-3" v-model="adc" value="CBI"></v-switch>
                 </v-list-tile-avatar>
                   <v-list-tile-content>
                   Ciencias biológicas
@@ -47,7 +49,7 @@
                   <v-divider></v-divider>
                   <v-list-tile>
                     <v-list-tile-avatar>
-                  <v-switch hide-details class="shrink mr-3" color="green darken-1" v-model="adc" value="csh"></v-switch>
+                  <v-switch hide-details class="shrink mr-3" color="green darken-1" v-model="adc" value="CSH"></v-switch>
                 </v-list-tile-avatar>
                   <v-list-tile-content>
                   Ciencias sociales y humanidades
@@ -125,7 +127,7 @@ import axios from 'axios'
 export default {
   data () {
     return {
-      adc: ['cne', 'iyt', 'cbi', 'csh'],
+      adc: ['CNE', 'IYT', 'CBI', 'CSH'],
       color: {
         cne: 'rgba(168, 32, 26, 0.8)',
         iyt: 'rgba(255, 145, 0, 0.8)',
@@ -133,29 +135,57 @@ export default {
         csh: 'rgba(22, 147, 15, 0.8)'
       },
       chartData: [],
+      origChartData: [],
       dialog: false,
-      dialogData: {}
+      dialogData: {},
+      search: ''
     }
   },
   methods: {
     getData () {
       axios.get('http://localhost:8080/api/scopus')
         .then(x => {
-          const CNEdata = x.data.filter(x => x.adc === 'CNE').map(y => ({...y, x: y.coordX, y: y.y + 1, r: y.citas})).map(x => ({...x, y: x.y >= 150 ? 160 : x.y}))
-          const IYTdata = x.data.filter(x => x.adc === 'IYT').map(y => ({...y, x: y.coordX, y: y.y + 1, r: y.citas}))
-          const CBIdata = x.data.filter(x => x.adc === 'CBI').map(y => ({...y, x: y.coordX, y: y.y + 1, r: y.citas}))
-          const CSHdata = x.data.filter(x => x.adc === 'CSH').map(y => ({...y, x: y.coordX, y: y.y + 1, r: y.citas}))
-          this.chartData.cne = CNEdata
-          this.chartData.iyt = IYTdata
-          this.chartData.cbi = CBIdata
-          this.chartData.csh = CSHdata
-          this.drawScatterChart()
-          this.drawPolarChart()
+          // const CNEdata = x.data.filter(x => x.adc === 'CNE').map(y => ({...y, x: y.coordX, y: y.y + 1, r: y.citas})).map(x => ({...x, y: x.y >= 150 ? 160 : x.y}))
+          // const IYTdata = x.data.filter(x => x.adc === 'IYT').map(y => ({...y, x: y.coordX, y: y.y + 1, r: y.citas}))
+          // const CBIdata = x.data.filter(x => x.adc === 'CBI').map(y => ({...y, x: y.coordX, y: y.y + 1, r: y.citas}))
+          // const CSHdata = x.data.filter(x => x.adc === 'CSH').map(y => ({...y, x: y.coordX, y: y.y + 1, r: y.citas}))
+          // this.chartData.cne = CNEdata
+          // this.chartData.iyt = IYTdata
+          // this.chartData.cbi = CBIdata
+          // this.chartData.csh = CSHdata
+          this.chartData = x.data.map(x => ({...x, x: x.coordX, y: x.y >= 150 ? 160 : x.y + 1, r: x.citas}))
+          this.origChartData = this.chartData
+          // this.drawScatterChart()
+          this.drawPieChart()
         })
     },
-    drawPolarChart () {
+    setAdc () {
+      this.chartData = this.origChartData.filter(x => this.adc.includes(x.adc))
+      this.drawPieChart()
+    },
+    searchChart () {
+      if (this.search.length >= 3) {
+        const results = this.origChartData.filter(x => {
+          const regex = new RegExp(`\\b${this.search}\\b`, 'gi')
+          return [regex.test(x.titulo), regex.test(x.autores), regex.test(x.editorial), regex.test(x.instituciones)].some(x => x === true)
+        })
+        const adcs = results.map(x => x.adc).filter((x, y, z) => z.indexOf(x) === y)
+        this.chartData = results
+        this.adc = adcs
+      }
+      if (this.search.length === 0) {
+        this.adc = ['CNE', 'IYT', 'CBI', 'CSH']
+        this.chartData = this.origChartData
+      }
+    },
+    drawPieChart () {
       const setPieDatasets = () => [{
-        data: Object.entries(this.chartData).map(dataset => this.adc.includes(dataset[0]) ? dataset[1].length : 0),
+        data: [
+          this.chartData.filter(x => x.adc === 'CNE').length,
+          this.chartData.filter(x => x.adc === 'IYT').length,
+          this.chartData.filter(x => x.adc === 'CBI').length,
+          this.chartData.filter(x => x.adc === 'CSH').length
+        ],
         backgroundColor: [this.color.cne, this.color.iyt, this.color.cbi, this.color.csh]
       }]
       if (this.pieChart) {
@@ -358,9 +388,17 @@ export default {
     this.getData()
   },
   watch: {
-    adc () {
-      this.drawScatterChart()
-      this.drawPolarChart()
+    // adc () {
+      // this.filterChart()
+      // this.searchChart()
+      // this.drawScatterChart()
+      // this.drawPieChart()
+    // },
+    search () {
+      this.searchChart()
+      this.drawPieChart()
+      // this.chartData = this.filterChart(this.searchChart(this.chartData))
+      // console.log(s)
     }
   }
 }

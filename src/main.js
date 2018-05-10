@@ -12,7 +12,8 @@ import {
   VFooter,
   VBtn,
   VDialog,
-  VIcon
+  VIcon,
+  VTextField
   // transitions
 } from 'vuetify'
 
@@ -27,7 +28,8 @@ Vue.use(Vuetify, {
     VFooter,
     VBtn,
     VDialog,
-    VIcon
+    VIcon,
+    VTextField
     // transitions
   }
 })
