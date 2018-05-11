@@ -1,10 +1,11 @@
 <template>
   <v-container fluid grid-list-md>
     <v-card>
-      <v-card-title class="subheading ">Publicaciones en revistas en Scopus. UNSAM período 2013-2017
+      <v-layout wrap row>
+        <v-flex class="pb-3" xl12 lg12 md12 s12 xs12>
+      <v-card-title class="title">Publicaciones en revistas en Scopus. UNSAM período 2013-2017.
       </v-card-title>
-      <v-card-media class="" contain>
-        <v-layout wrap row>
+    </v-flex>
           <v-flex xl10 lg9 md9 s12 xs12>
             <v-card flat>
               <v-card-media contain>
@@ -13,25 +14,25 @@
             </v-card>
           </v-flex>
           <v-flex class="pr-3" xl2 lg3 md3 s12 xs12>
-            <v-text-field  hint="por titulo, autor, institucion, revista." append-icon="search" id="input1" name="input1" label="Buscar" v-model="search">
+            <v-text-field :rules="this.rules" append-icon="search" id="input1" name="input1" label="Buscar" v-model="search" hint="por titulo, autor, institucion, revista.">
             </v-text-field>
             <v-card class="" flat>
                 <v-list class="mb-5" dense>
                   <v-divider></v-divider>
                   <v-list-tile>
-                    <v-list-tile-avatar>
-                    <v-switch @click="setAdc()" hide-details class="shrink mr-3" color="red darken-4" v-model="adc" value="CNE"></v-switch>
-                    </v-list-tile-avatar>
-                    <v-list-tile-content>
-                      <v-list-tile-title>
-                        Ciencias naturales y exactas
-                      </v-list-tile-title>
+                  <v-list-tile-avatar>
+                  <v-switch @click.native="setAdc()" hide-details class="shrink mr-3" color="red darken-4" v-model="adc" value="CNE"></v-switch>
+                  </v-list-tile-avatar>
+                  <v-list-tile-content>
+                    <v-list-tile-title>
+                      Ciencias naturales y exactas
+                    </v-list-tile-title>
                   </v-list-tile-content>
                   </v-list-tile>
                   <v-divider></v-divider>
                   <v-list-tile>
                     <v-list-tile-avatar>
-                    <v-switch hide-details class="shrink mr-3" color="orange accent-3" v-model="adc" value="IYT"></v-switch>
+                    <v-switch @click.native="setAdc()" hide-details class="shrink mr-3" color="orange accent-3" v-model="adc" value="IYT"></v-switch>
                   </v-list-tile-avatar>
                     <v-list-tile-content>
                     Ingenierías y tecnologías
@@ -40,7 +41,7 @@
                   <v-divider></v-divider>
                   <v-list-tile>
                     <v-list-tile-avatar>
-                  <v-switch hide-details class="shrink mr-3" color="grey darken-3" v-model="adc" value="CBI"></v-switch>
+                  <v-switch @click.native="setAdc()" hide-details class="shrink mr-3" color="grey darken-3" v-model="adc" value="CBI"></v-switch>
                 </v-list-tile-avatar>
                   <v-list-tile-content>
                   Ciencias biológicas
@@ -49,7 +50,7 @@
                   <v-divider></v-divider>
                   <v-list-tile>
                     <v-list-tile-avatar>
-                  <v-switch hide-details class="shrink mr-3" color="green darken-1" v-model="adc" value="CSH"></v-switch>
+                  <v-switch @click.native="setAdc()" hide-details class="shrink mr-3" color="green darken-1" v-model="adc" value="CSH"></v-switch>
                 </v-list-tile-avatar>
                   <v-list-tile-content>
                   Ciencias sociales y humanidades
@@ -66,7 +67,6 @@
             </v-card>
           </v-flex>
         </v-layout>
-      </v-card-media>
       <v-footer height="48" class="" color="white">
         <v-spacer></v-spacer>
         <span style="margin-right:5px;">Datos provistos por la API de</span>
@@ -74,10 +74,10 @@
         <img alt="scopus" height="16" style="vertical-align:bottom;" src="https://www.elsevier.com/__data/assets/image/0003/118146/scopus_logo_r.jpg"></img>
         </a>
         <span style="margin-left:5px;margin-right:5px;">el 1/05/2018</span>
-        <img class="pr-3" height="32px" alt="UNSAMDATA" src="public/data-favicon.png"></img>
+        <img class="pr-3" height="32px" alt="UNSAMDATA" src="unsamdata.png"></img>
       </v-footer>
     </v-card>
-    <v-dialog v-model="dialog" max-width="600px">
+    <v-dialog v-model="dialog" max-width="1000px">
       <v-card>
         <v-card-title>
            <span class="title">{{ this.dialogData.titulo }}</span>
@@ -129,47 +129,55 @@ export default {
     return {
       adc: ['CNE', 'IYT', 'CBI', 'CSH'],
       color: {
-        cne: 'rgba(168, 32, 26, 0.8)',
-        iyt: 'rgba(255, 145, 0, 0.8)',
-        cbi: 'rgba(55, 71, 79, 0.8)',
-        csh: 'rgba(22, 147, 15, 0.8)'
+        CNE: 'rgba(168, 32, 26, 0.8)',
+        IYT: 'rgba(255, 145, 0, 0.8)',
+        CBI: 'rgba(55, 71, 79, 0.8)',
+        CSH: 'rgba(22, 147, 15, 0.8)'
       },
       chartData: [],
       origChartData: [],
+      chartResults: [],
       dialog: false,
       dialogData: {},
-      search: ''
+      search: '',
+      rules: [() => this.search.length >= 3 && this.chartResults.length !== 0
+        ? `Se encontraton ${this.chartResults.length} resultados.`
+        : this.search.length >= 3 && this.chartResults.length === 0
+          ? 'No se encontraton resultados.'
+          : []
+      ]
     }
   },
   methods: {
     getData () {
-      axios.get('http://localhost:8080/api/scopus')
-        .then(x => {
-          // const CNEdata = x.data.filter(x => x.adc === 'CNE').map(y => ({...y, x: y.coordX, y: y.y + 1, r: y.citas})).map(x => ({...x, y: x.y >= 150 ? 160 : x.y}))
-          // const IYTdata = x.data.filter(x => x.adc === 'IYT').map(y => ({...y, x: y.coordX, y: y.y + 1, r: y.citas}))
-          // const CBIdata = x.data.filter(x => x.adc === 'CBI').map(y => ({...y, x: y.coordX, y: y.y + 1, r: y.citas}))
-          // const CSHdata = x.data.filter(x => x.adc === 'CSH').map(y => ({...y, x: y.coordX, y: y.y + 1, r: y.citas}))
-          // this.chartData.cne = CNEdata
-          // this.chartData.iyt = IYTdata
-          // this.chartData.cbi = CBIdata
-          // this.chartData.csh = CSHdata
-          this.chartData = x.data.map(x => ({...x, x: x.coordX, y: x.y >= 150 ? 160 : x.y + 1, r: x.citas}))
+      axios.get('http://sinos.unsam.edu.ar/api/graficoscopus')
+        .then(response => {
+          this.chartData = response.data.map(x => ({...x, y: parseInt(x.y) >= 150 ? 160 : parseInt(x.y) + 1}))
           this.origChartData = this.chartData
-          // this.drawScatterChart()
+          this.drawScatterChart()
           this.drawPieChart()
         })
     },
     setAdc () {
-      this.chartData = this.origChartData.filter(x => this.adc.includes(x.adc))
-      this.drawPieChart()
+      if (this.search.length >= 3) {
+        this.chartData = this.chartResults.filter(x => this.adc.includes(x.adc))
+        this.drawPieChart()
+        this.drawScatterChart()
+      } else {
+        this.chartData = this.origChartData.filter(x => this.adc.includes(x.adc))
+        this.drawPieChart()
+        this.drawScatterChart()
+      }
     },
     searchChart () {
       if (this.search.length >= 3) {
         const results = this.origChartData.filter(x => {
-          const regex = new RegExp(`\\b${this.search}\\b`, 'gi')
+          const sinAcento = this.search.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\\/g, '').replace(/-/g, ' ').replace(/\*/g, '')
+          const regex = new RegExp(`\\b${sinAcento}\\b`, 'gi')
           return [regex.test(x.titulo), regex.test(x.autores), regex.test(x.editorial), regex.test(x.instituciones)].some(x => x === true)
         })
         const adcs = results.map(x => x.adc).filter((x, y, z) => z.indexOf(x) === y)
+        this.chartResults = results
         this.chartData = results
         this.adc = adcs
       }
@@ -186,7 +194,7 @@ export default {
           this.chartData.filter(x => x.adc === 'CBI').length,
           this.chartData.filter(x => x.adc === 'CSH').length
         ],
-        backgroundColor: [this.color.cne, this.color.iyt, this.color.cbi, this.color.csh]
+        backgroundColor: [this.color.CNE, this.color.IYT, this.color.CBI, this.color.CSH]
       }]
       if (this.pieChart) {
         this.pieChart.data.datasets = setPieDatasets()
@@ -232,29 +240,28 @@ export default {
       }
     },
     drawScatterChart () {
-      const setScatterDatasets = () => Object.entries(this.chartData).map(dataset => {
-        const dataRadius = dataset[1].map(x => x.r >= 150
-          ? x.r / 6
-          : x.r < 150 && x.r >= 100
-            ? x.r / 5
-            : x.r < 100 && x.r >= 50
-              ? x.r / 4
-              : x.r < 50 && x.r >= 20
-                ? x.r / 3
-                : x.r < 20 && x.r >= 10
-                  ? x.r / 2
-                  : 3)
+      const setScatterDatasets = () => this.chartData.map(dataset => {
+        const dataRadius = dataset.r >= 150
+          ? dataset.r / 6
+          : dataset.r < 150 && dataset.r >= 100
+            ? dataset.r / 5
+            : dataset.r < 100 && dataset.r >= 50
+              ? dataset.r / 4
+              : dataset.r < 50 && dataset.r >= 20
+                ? dataset.r / 3
+                : dataset.r < 20 && dataset.r >= 10
+                  ? dataset.r / 2
+                  : 3
         return {
-          data: this.adc.includes(dataset[0]) ? dataset[1] : [],
+          data: [this.adc.includes(dataset.adc) ? dataset : []],
           pointRadius: dataRadius,
           pointHoverRadius: dataRadius,
-          backgroundColor: this.color[dataset[0]],
+          backgroundColor: this.color[dataset.adc],
           pointHoverBorderColor: 'black',
           pointHoverBorderWidth: 3,
           borderWidth: 3
         }
-      }
-      )
+      })
       if (this.scatterChart) {
         this.scatterChart.data.datasets = setScatterDatasets()
         this.scatterChart.update({duration: 0})
@@ -287,7 +294,8 @@ export default {
                 ticks: {
                   display: false,
                   beginAtZero: true,
-                  min: 0}
+                  min: 0,
+                  max: 160}
               }],
               xAxes: [{
                 gridLines: {
@@ -316,25 +324,18 @@ export default {
               callbacks: {
                 label: (tooltipItem, data) => {
                   const dataset = data.datasets[tooltipItem.datasetIndex]
-                  // const meta = dataset._meta[Object.keys(dataset._meta)[0]]
-                  // const total = meta.total
                   const currentValue = dataset.data[tooltipItem.index]
-                  // const percentage = parseFloat((currentValue / total * 100).toFixed(1))
-                  // console.log(currentValue)
-                  return `Cantidad de citas: ${currentValue.citas}`
+                  return `Cantidad de citas: ${currentValue.r}`
                 },
                 title: (tooltipItem, data) => {
                   const dataset = data.datasets[tooltipItem[0].datasetIndex]
                   const currentValue = dataset.data[tooltipItem[0].index]
                   return `${currentValue.titulo}`
-                  // const dataset = data.datasets[tooltipItem.datasetIndex]
-                  // const currentValue = dataset.data[tooltipItem.index]
-                  // return currentValue.citas
                 },
                 footer: (tooltipItem, data) => {
                   const dataset = data.datasets[tooltipItem[0].datasetIndex]
                   const currentValue = dataset.data[tooltipItem[0].index]
-                  return `${currentValue.fecha}` // currentValue.titulo // + ' (' + percentage + '%)'
+                  return `${currentValue.fecha}`
                 }
               }
             },
@@ -388,17 +389,10 @@ export default {
     this.getData()
   },
   watch: {
-    // adc () {
-      // this.filterChart()
-      // this.searchChart()
-      // this.drawScatterChart()
-      // this.drawPieChart()
-    // },
     search () {
       this.searchChart()
       this.drawPieChart()
-      // this.chartData = this.filterChart(this.searchChart(this.chartData))
-      // console.log(s)
+      this.drawScatterChart()
     }
   }
 }
