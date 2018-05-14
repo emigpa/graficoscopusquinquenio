@@ -70,11 +70,13 @@
       <v-footer height="48" class="" color="white">
         <v-spacer></v-spacer>
         <span style="margin-right:5px;">Datos provistos por la API de</span>
-        <a href="http://api.elsevier.com" target="_blank">
+        <a href="https://api.elsevier.com" target="_blank">
         <img alt="scopus" height="16" style="vertical-align:bottom;" src="https://www.elsevier.com/__data/assets/image/0003/118146/scopus_logo_r.jpg"></img>
         </a>
         <span style="margin-left:5px;margin-right:5px;">el 1/05/2018</span>
-        <img class="pr-3" height="32px" alt="UNSAMDATA" src="unsamdata.png"></img>
+        <a href="https://github.com/emigpa/graficoscopusquinquenio" target="_blank">
+        <img class="pr-3" height="24px" alt="github.com/emigpa/graficoscopusquinquenio" :src="githublogo"></img>
+      </a>
       </v-footer>
     </v-card>
     <v-dialog v-model="dialog" max-width="1000px">
@@ -108,7 +110,7 @@
           </v-card-text>
           <v-card-text class="caption">
             <span class="subheading">Enlace a la publicación: </span>
-                <v-btn :href="`http://doi.org/${this.dialogData.doi}`" target="_blank" small flat icon outline color="blue">
+                <v-btn :href="`https://doi.org/${this.dialogData.doi}`" target="_blank" small flat icon outline color="blue">
                   <v-icon>link</v-icon>
                 </v-btn>
           </v-card-text>
@@ -123,6 +125,7 @@
 import Chart from 'chart.js/dist/Chart.min.js'
 import Zoom from 'chartjs-plugin-zoom'
 import axios from 'axios'
+import githublogo from '../public/github.png'
 
 export default {
   data () {
@@ -145,7 +148,8 @@ export default {
         : this.search.length >= 3 && this.chartResults.length === 0
           ? 'No se encontraton resultados.'
           : []
-      ]
+      ],
+      githublogo
     }
   },
   methods: {
