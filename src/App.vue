@@ -75,7 +75,7 @@
         </a>
         <span style="margin-left:5px;margin-right:5px;">el 1/05/2018</span>
         <a href="https://github.com/emigpa/graficoscopusquinquenio" target="_blank">
-        <img class="pr-3" height="24px" alt="github.com/emigpa/graficoscopusquinquenio" :src="githublogo"></img>
+        <img class="pr-3" height="24px" alt="github.com/emigpa/graficoscopusquinquenio" :src="github.png"></img>
       </a>
       </v-footer>
     </v-card>
@@ -125,7 +125,6 @@
 import Chart from 'chart.js/dist/Chart.min.js'
 import Zoom from 'chartjs-plugin-zoom'
 import axios from 'axios'
-import githublogo from '../public/github.png'
 
 export default {
   data () {
