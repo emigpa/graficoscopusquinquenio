@@ -175,7 +175,7 @@ export default {
         const results = this.origChartData.filter(x => {
           const sinAcento = this.search.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\\/g, '').replace(/-/g, ' ').replace(/\*/g, '')
           const regex = new RegExp(`\\b${sinAcento}\\b`, 'gi')
-          return [regex.test(x.titulo), regex.test(x.autores), regex.test(x.editorial), regex.test(x.instituciones)].some(x => x === true)
+          return [regex.test(x.titulo), regex.test(x.autores), regex.test(x.editorial), regex.test(x.instituciones), regex.test(x.licencia)].some(x => x === true)
         })
         const adcs = results.map(x => x.adc).filter((x, y, z) => z.indexOf(x) === y)
         this.chartResults = results
