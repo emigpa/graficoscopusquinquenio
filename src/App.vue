@@ -14,7 +14,7 @@
             </v-card>
           </v-flex>
           <v-flex class="pr-3" xl2 lg3 md3 s12 xs12>
-            <v-text-field :rules="this.rules" append-icon="search" id="input1" name="input1" label="Buscar" v-model="search" hint="por titulo, autor, institucion, revista.">
+            <v-text-field :rules="this.rules" append-icon="search" id="input1" name="input1" label="Buscar" v-model="search" hint="por título, autor, institución, revista.">
             </v-text-field>
             <v-card class="" flat>
                 <v-list class="mb-5" dense>
@@ -408,5 +408,8 @@ body {
 }
 .chart-container {
   font-family: 'Lato';
+}
+label[for=input1] {
+  font-weight: bold;
 }
 </style>
